@@ -1,224 +1,67 @@
-# Mini Chat em Tempo Real (NestJS + TypeScript + Clean Architecture)
+# Chat em Tempo Real (Versão Simplificada)
 
-Projeto completo de **mini chat em tempo real** com foco em engenharia de software, utilizando:
-- **Node.js + TypeScript**
-- **NestJS**
-- **WebSockets com Socket.IO**
-- **Banco relacional** (SQLite para desenvolvimento, pronto para PostgreSQL)
-- **Clean Architecture + SOLID**
+Projeto mínimo de chat para rodar localmente com **Node.js + Express + Socket.IO**.
 
----
+## O que este projeto faz
 
-## 1) Visão Geral da Arquitetura
-
-O projeto foi dividido em camadas para garantir baixo acoplamento, alta coesão e fácil evolução.
-
-### Camadas
-
-- **Domain**
-  - Entidades puras (`User`, `Room`, `Message`)
-  - Contratos de repositório
-  - Porta de integração (`AIChatAdapter`)
-  - Regras de domínio (`ChatPolicyService`)
-
-- **Application**
-  - Casos de uso (`RegisterUser`, `CreateRoom`, `JoinRoom`, `SendMessage`, `ListRoomMessages`)
-  - Orquestração de regras de negócio
-
-- **Infrastructure**
-  - Implementações TypeORM (repositórios e entidades de banco)
-  - Adapter de integração exemplo para IA (`AIChatAdapterImpl`)
-  - Tokens de injeção de dependências
-
-- **Interfaces**
-  - Controllers HTTP (REST)
-  - Gateway WebSocket (Socket.IO)
-  - DTOs de entrada (validação com `class-validator`)
-
-### Princípios aplicados
-
-- **S de SOLID (Single Responsibility)**: cada classe tem responsabilidade bem definida.
-- **O (Open/Closed)**: adiciona-se novas integrações sem mudar casos de uso existentes.
-- **L (Liskov)**: contratos de repositório/adapter permitem substituições transparentes.
-- **I (Interface Segregation)**: interfaces pequenas e focadas por contexto.
-- **D (Dependency Inversion)**: use-cases dependem de abstrações (tokens + interfaces), nunca de concretos.
+- Serve o frontend estático pelo Express.
+- Conecta clientes em tempo real com Socket.IO.
+- Quando um cliente envia mensagem, o servidor retransmite para todos.
 
 ---
 
-## 2) Funcionalidades Implementadas
-
-✅ Cadastro simples de usuário  
-✅ Criação e entrada em salas  
-✅ Envio/recebimento de mensagens em tempo real (Socket.IO)  
-✅ Persistência do histórico de mensagens em banco relacional  
-✅ Identificação do usuário em cada mensagem  
-✅ Integração desacoplada de exemplo (`AIChatAdapter`) para respostas automáticas com `@assistant`
-
----
-
-## 3) Estrutura de Pastas
+## Estrutura simples
 
 ```bash
-src/
-├── domain/
-│   ├── adapters/
-│   ├── entities/
-│   ├── repositories/
-│   └── services/
-├── application/
-│   ├── dto/
-│   └── use-cases/
-├── infrastructure/
-│   ├── database/
-│   │   └── typeorm/
-│   │       ├── entities/
-│   │       └── repositories/
-│   ├── integrations/
-│   └── providers/
-├── interfaces/
-│   ├── http/
-│   │   ├── controllers/
-│   │   └── dto/
-│   └── websocket/
-│       ├── dto/
-│       └── gateways/
-├── app.module.ts
-└── main.ts
+.
+├── server.js        # Backend Express + Socket.IO
+├── public/
+│   └── index.html   # Frontend único (HTML + CSS + JS)
+└── package.json
 ```
 
 ---
 
-## 4) Instalação e Execução
-## 4) Como Rodar o Projeto
+## Pré-requisitos
 
-### Pré-requisitos
-- Node.js 20+
-- npm 10+
+- Node.js 18+ (recomendado 20+)
+- npm
 
-### Instalação
+---
+
+## Como rodar localmente
+
+1. Instale dependências:
 
 ```bash
 npm install
 ```
 
-> O projeto usa versões compatíveis do ecossistema NestJS v10 e `@nestjs/swagger` v7.
-
-### 4.2 Executar em desenvolvimento
+2. Inicie o servidor:
 
 ```bash
-npm run start:dev
+npm start
 ```
 
-### 4.3 Build e execução em produção
+3. Abra no navegador:
 
 ```bash
-npm run build
-npm run start:prod
+http://localhost:3000
 ```
 
-Serviços expostos:
-- API HTTP: `http://localhost:3000`
-- Swagger (OpenAPI): `http://localhost:3000/docs`
-- Socket.IO endpoint: `ws://localhost:3000`
+Pronto. O frontend já conecta automaticamente ao Socket.IO do mesmo servidor.
 
 ---
 
-## 5) Swagger (OpenAPI)
+## Fluxo do chat
 
-A documentação OpenAPI está habilitada de forma centralizada em um endpoint único e consistente:
-
-```bash
-http://localhost:3000/docs
-```
-
-### Endpoints principais
-- `POST /users` → cadastra usuário
-- `POST /rooms` → cria sala
-- `POST /rooms/:roomId/join/:userId` → valida entrada de usuário em sala
-- `GET /rooms/:roomId/messages` → histórico da sala
+1. Cliente abre a página e conecta no Socket.IO.
+2. Cliente envia uma mensagem.
+3. Servidor recebe e faz `io.emit(...)` para todos os conectados.
 
 ---
 
-## 6) Eventos WebSocket
+## Observações de aprendizado
 
-### Evento: `room:join`
-Payload:
-```json
-{
-  "roomId": "uuid-da-sala",
-  "userId": "uuid-do-usuario"
-}
-```
-Retorno broadcast:
-- `room:user-joined`
-
-### Evento: `message:send`
-Payload:
-```json
-{
-  "roomId": "uuid-da-sala",
-  "userId": "uuid-do-usuario",
-  "content": "Olá @assistant"
-}
-```
-Retorno broadcast:
-- `message:new` (mensagem do usuário)
-- `message:new` (mensagem da assistente, quando triggerado `@assistant`)
-
----
-
-## 7) Banco de Dados
-
-### Desenvolvimento
-- SQLite (`chat.db`) com `synchronize: true`
-
-### Produção (recomendado)
-- Trocar para PostgreSQL no `TypeOrmModule.forRoot`.
-- Manter contratos de repositório; a troca é transparente para o domínio/aplicação.
-
----
-
-## 8) Como Adicionar Novas Integrações (Adapters)
-
-Exemplo: integrar provedor real de IA.
-
-1. Criar implementação em `src/infrastructure/integrations/` para a interface `AIChatAdapter`.
-2. Registrar no `AppModule` no token `AI_CHAT_ADAPTER`.
-3. Manter `SendMessageUseCase` inalterado (Inversão de Dependência).
-
-Esse padrão também permite integrar:
-- bots internos
-- serviços de moderação
-- analytics/event streaming
-- traduções automáticas
-
----
-
-## 9) Expansibilidade Planejada
-
-A arquitetura já permite evolução para:
-
-- **Bots adicionais**: novos adapters + roteamento por tipo de mensagem.
-- **JWT**: incluir módulo de auth e guardas nas interfaces sem quebrar casos de uso.
-- **Novos tipos de mensagens**: campo `type` já previsto (`USER_TEXT`, `ASSISTANT_TEXT`, etc).
-- **Serviços externos**: integração via portas/adapters sem refatorações grandes.
-
----
-
-## 10) Próximos passos sugeridos
-
-- Criar módulo de autenticação JWT e refresh tokens.
-- Persistir memberships em tabela `room_members`.
-- Adicionar controle de presença online/offline.
-- Implementar testes unitários dos use-cases e testes de integração E2E.
-
----
-
-## Evolução para Chat Corporativo ou Educacional
-
-Este projeto pode evoluir para:
-
-- **Corporativo**: canais por equipe, permissões por papel, integração com SSO, auditoria e compliance.
-- **Educacional**: salas por turma/disciplina, bots tutores, trilhas de aprendizado e métricas de engajamento.
-
-Como a base usa Clean Architecture, o crescimento acontece por módulos e adapters, evitando refatorações disruptivas.
+- `server.js` tem comentários explicando as partes principais.
+- `public/index.html` contém HTML, CSS e JS com comentários para facilitar estudo.
