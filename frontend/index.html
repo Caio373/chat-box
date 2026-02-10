@@ -1,0 +1,22 @@
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  const socket = io('http://localhost:3000', {
+    transports: ['websocket'],
+  });
+
+  socket.on('connect', () => {
+    console.log('✅ Conectado ao backend:', socket.id);
+  });
+
+  socket.on('message', (msg) => {
+    const li = document.createElement('li');
+    li.textContent = msg;
+    document.getElementById('messages').appendChild(li);
+  });
+
+  function send() {
+    const input = document.getElementById('msg');
+    socket.emit('message', input.value);
+    input.value = '';
+  }
+</script>

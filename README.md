@@ -89,12 +89,13 @@ src/
 ---
 
 ## 4) Instalação e Execução
+## 4) Como Rodar o Projeto
 
 ### Pré-requisitos
 - Node.js 20+
 - npm 10+
 
-### 4.1 Instalação
+### Instalação
 
 ```bash
 npm install
@@ -116,7 +117,6 @@ npm run start:prod
 ```
 
 Serviços expostos:
-- UI do Chat (HTML/CSS): `http://localhost:3000`
 - API HTTP: `http://localhost:3000`
 - Swagger (OpenAPI): `http://localhost:3000/docs`
 - Socket.IO endpoint: `ws://localhost:3000`
@@ -211,32 +211,6 @@ A arquitetura já permite evolução para:
 - Persistir memberships em tabela `room_members`.
 - Adicionar controle de presença online/offline.
 - Implementar testes unitários dos use-cases e testes de integração E2E.
-
----
-
-
-## 11) Troubleshooting
-
-### Erro: `Cannot find name 'end_of_line'` em `src/main.ts`
-
-Se você encontrar algo como:
-
-```
-src/main.ts:41:1 - error TS2304: Cannot find name 'end_of_line'.
-```
-
-isso indica que uma linha de configuração de editor (ex.: `end_of_line = lf`) foi inserida acidentalmente dentro de um arquivo TypeScript.
-
-Como corrigir:
-1. Abra `src/main.ts` e remova qualquer linha inválida parecida com `end_of_line = lf`.
-2. Garanta que o arquivo termine com `void bootstrap();`.
-3. Rode novamente:
-
-```bash
-npm run start
-```
-
-> Este repositório já inclui `.editorconfig` para evitar esse problema no futuro.
 
 ---
 

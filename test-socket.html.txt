@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teste WebSocket Chat</title>
+</head>
+<body>
+  <h2>Teste Chat em Tempo Real</h2>
+
+  <button onclick="joinRoom()">Entrar na sala</button>
+  <button onclick="sendMessage()">Enviar mensagem</button>
+
+  <pre id="log"></pre>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://localhost:3000");
+
+    socket.on("connect", () => {
+      log("✅ Conectado: " + socket.id);
+    });
+
+    socket.on("message:new", (data) => {
+      log("📩 Nova mensagem: " + JSON.stringify(data));
+    });
+
+    function joinRoom() {
+      socket.emit("room:join", {
+        roomId: "sala1",
+        userId: "caio"
+      });
+      log("➡️ Entrou na sala");
+    }
+
+    function sendMessage() {
+      socket.emit("message:send", {
+        roomId: "sala1",
+        userId: "caio",
+        content: "Olá, isso é tempo real 😎"
+      });
+      log("➡️ Mensagem enviada");
+    }
+
+    function log(msg) {
+      document.getElementById("log").textContent += msg + "\n";
+    }
+  </script>
+</body>
+</html>

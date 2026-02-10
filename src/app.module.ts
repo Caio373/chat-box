@@ -44,3 +44,8 @@ import { ChatPolicyService } from './domain/services/chat-policy.service';
   ]
 })
 export class AppModule {}
+@Module({
+  providers: [ChatGateway],
+})
+export class WebsocketModule {}
+
