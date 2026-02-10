@@ -26,7 +26,7 @@ async function bootstrap(): Promise<void> {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mini Chat API')
     .setDescription('API HTTP e WebSocket para um mini chat com Clean Architecture')
-    .setVersion('1.0.1')
+    .setVersion('1.0.0')
     .addTag('users')
     .addTag('rooms')
     .build();
