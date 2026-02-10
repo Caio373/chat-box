@@ -1,0 +1,213 @@
+/*
+  Reset e base visual geral:
+  Padroniza box model e cria plano de fundo suave para destacar o card de chat.
+*/
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(180deg, #eef3ff 0%, #f9fbff 100%);
+  color: #1f2937;
+}
+
+/*
+  Área principal da página:
+  Centraliza o chat horizontal/verticalmente e aplica espaçamento responsivo.
+*/
+.chat-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/*
+  Container principal do chat:
+  Define largura máxima, altura fixa e visual de cartão moderno.
+*/
+.chat-container {
+  width: min(100%, 760px);
+  height: min(88vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px -30px rgba(15, 23, 42, 0.5);
+  overflow: hidden;
+}
+
+/*
+  Cabeçalho do chat:
+  Mantém título e subtítulo legíveis com contraste suave.
+*/
+.chat-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #eef2f7;
+  background: linear-gradient(90deg, #f7f9ff 0%, #f1f5ff 100%);
+}
+
+.chat-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.chat-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/*
+  Lista de mensagens:
+  Área fixa com rolagem vertical automática para histórico extenso.
+*/
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #f9fbff;
+}
+
+/*
+  Bolha base da mensagem:
+  Define espaçamento interno, largura máxima e tipografia consistente.
+*/
+.message {
+  max-width: min(78%, 480px);
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  word-break: break-word;
+}
+
+/*
+  Mensagens recebidas:
+  Alinhadas à esquerda com tom claro neutro.
+*/
+.message-received {
+  align-self: flex-start;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/*
+  Mensagens enviadas pelo usuário:
+  Alinhadas à direita com cor de destaque.
+*/
+.message-sent {
+  align-self: flex-end;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+}
+
+.message-author {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.message-content {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.message-time {
+  align-self: flex-end;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+/*
+  Barra inferior de entrada:
+  Fixa no rodapé do container com input e botão modernos.
+*/
+.chat-input-area {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid #eef2f7;
+  background: #ffffff;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 0.72rem 0.9rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+}
+
+.chat-send-button {
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 0.72rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 20px -14px rgba(37, 99, 235, 0.9);
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.chat-send-button:hover {
+  filter: brightness(1.05);
+}
+
+.chat-send-button:active {
+  transform: translateY(1px);
+}
+
+/*
+  Classe de acessibilidade para labels sem impacto visual.
+*/
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/*
+  Regras responsivas:
+  Ajusta dimensões e largura das bolhas em telas menores.
+*/
+@media (max-width: 640px) {
+  .chat-page {
+    padding: 0.75rem;
+  }
+
+  .chat-container {
+    height: 92vh;
+    border-radius: 14px;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+}

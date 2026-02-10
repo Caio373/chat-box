@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Chat</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="chat-page">
+      <section class="chat-container" aria-label="Janela principal do chat">
+        <header class="chat-header">
+          <h1 class="chat-title">Chat</h1>
+          <p class="chat-subtitle">Conversa em tempo real</p>
+        </header>
+
+        <section id="messageList" class="chat-messages" aria-live="polite">
+          <article class="message message-received">
+            <p class="message-author">Ana</p>
+            <p class="message-content">Olá! Seja bem-vindo ao Mini Chat.</p>
+            <time class="message-time">09:40</time>
+          </article>
+
+          <article class="message message-sent">
+            <p class="message-author">Você</p>
+            <p class="message-content">Obrigado! O layout ficou bem moderno 🚀</p>
+            <time class="message-time">09:41</time>
+          </article>
+        </section>
+
+        <form id="chatForm" class="chat-input-area" autocomplete="off">
+          <label class="visually-hidden" for="messageInput">Mensagem</label>
+          <input
+            id="messageInput"
+            name="message"
+            class="chat-input"
+            type="text"
+            placeholder="Digite sua mensagem..."
+            maxlength="1000"
+            required
+          />
+          <button class="chat-send-button" type="submit">Enviar</button>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const messageList = document.getElementById('messageList');
+      const chatForm = document.getElementById('chatForm');
+      const messageInput = document.getElementById('messageInput');
+
+      function scrollToBottom() {
+        messageList.scrollTop = messageList.scrollHeight;
+      }
+
+      function getTimeLabel() {
+        return new Date().toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      function appendMessage(content, type, author) {
+        const wrapper = document.createElement('article');
+        wrapper.className = `message ${type}`;
+
+        const authorElement = document.createElement('p');
+        authorElement.className = 'message-author';
+        authorElement.textContent = author;
+
+        const contentElement = document.createElement('p');
+        contentElement.className = 'message-content';
+        contentElement.textContent = content;
+
+        const timeElement = document.createElement('time');
+        timeElement.className = 'message-time';
+        timeElement.textContent = getTimeLabel();
+
+        wrapper.append(authorElement, contentElement, timeElement);
+        messageList.appendChild(wrapper);
+
+        scrollToBottom();
+      }
+
+      chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const trimmedContent = messageInput.value.trim();
+        if (!trimmedContent) return;
+
+        appendMessage(trimmedContent, 'message-sent', 'Você');
+        messageInput.value = '';
+        messageInput.focus();
+
+        setTimeout(() => {
+          appendMessage('Mensagem recebida com sucesso!', 'message-received', 'Sistema');
+        }, 300);
+      });
+
+      scrollToBottom();
+    </script>
+  </body>
+</html>
