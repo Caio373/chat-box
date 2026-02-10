@@ -88,6 +88,7 @@ src/
 
 ---
 
+## 4) Instalação e Execução
 ## 4) Como Rodar o Projeto
 
 ### Pré-requisitos
@@ -100,22 +101,31 @@ src/
 npm install
 ```
 
-### Executar em desenvolvimento
+> O projeto usa versões compatíveis do ecossistema NestJS v10 e `@nestjs/swagger` v7.
+
+### 4.2 Executar em desenvolvimento
 
 ```bash
 npm run start:dev
 ```
 
-Servidor sobe em:
+### 4.3 Build e execução em produção
+
+```bash
+npm run build
+npm run start:prod
+```
+
+Serviços expostos:
 - API HTTP: `http://localhost:3000`
-- Swagger: `http://localhost:3000/docs`
+- Swagger (OpenAPI): `http://localhost:3000/docs`
 - Socket.IO endpoint: `ws://localhost:3000`
 
 ---
 
-## 5) Documentação da API (Swagger)
+## 5) Swagger (OpenAPI)
 
-A documentação OpenAPI está habilitada em:
+A documentação OpenAPI está habilitada de forma centralizada em um endpoint único e consistente:
 
 ```bash
 http://localhost:3000/docs
