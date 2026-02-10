@@ -3,101 +3,191 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mini Chat</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <title>Chat em Tempo Real (Simples)</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --muted: #94a3b8;
+        --text: #e2e8f0;
+        --primary: #38bdf8;
+        --primary-hover: #0ea5e9;
+        --border: #1f2937;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at top, #1e293b, var(--bg));
+        color: var(--text);
+        padding: 16px;
+      }
+
+      .chat-container {
+        width: min(720px, 100%);
+        height: min(80vh, 760px);
+        background: color-mix(in srgb, var(--card) 92%, black);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+      }
+
+      .chat-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .chat-header h1 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .chat-header small {
+        color: var(--muted);
+      }
+
+      .messages {
+        padding: 16px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .message {
+        background: #0b1220;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 10px 12px;
+        line-height: 1.35;
+      }
+
+      .message .meta {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      .chat-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 14px;
+        border-top: 1px solid var(--border);
+      }
+
+      .chat-input {
+        width: 100%;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 12px;
+        background: #0b1220;
+        color: var(--text);
+        font-size: 0.95rem;
+      }
+
+      .chat-input:focus {
+        outline: 2px solid color-mix(in srgb, var(--primary) 65%, transparent);
+        border-color: var(--primary);
+      }
+
+      .send-button {
+        border: none;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #0b1020;
+        font-weight: 700;
+        padding: 0 16px;
+        cursor: pointer;
+      }
+
+      .send-button:hover {
+        background: var(--primary-hover);
+      }
+    </style>
   </head>
   <body>
-    <main class="chat-page">
-      <section class="chat-container" aria-label="Janela principal do chat">
-        <header class="chat-header">
-          <h1 class="chat-title">Chat</h1>
-          <p class="chat-subtitle">Conversa em tempo real</p>
-        </header>
+    <main class="chat-container">
+      <header class="chat-header">
+        <h1>Chat em Tempo Real</h1>
+        <small>Node.js + Express + Socket.IO (versão simplificada)</small>
+      </header>
 
-        <section id="messageList" class="chat-messages" aria-live="polite">
-          <article class="message message-received">
-            <p class="message-author">Ana</p>
-            <p class="message-content">Olá! Seja bem-vindo ao Mini Chat.</p>
-            <time class="message-time">09:40</time>
-          </article>
+      <!-- Área com rolagem para exibir histórico de mensagens -->
+      <section id="messages" class="messages"></section>
 
-          <article class="message message-sent">
-            <p class="message-author">Você</p>
-            <p class="message-content">Obrigado! O layout ficou bem moderno 🚀</p>
-            <time class="message-time">09:41</time>
-          </article>
-        </section>
-
-        <form id="chatForm" class="chat-input-area" autocomplete="off">
-          <label class="visually-hidden" for="messageInput">Mensagem</label>
-          <input
-            id="messageInput"
-            name="message"
-            class="chat-input"
-            type="text"
-            placeholder="Digite sua mensagem..."
-            maxlength="1000"
-            required
-          />
-          <button class="chat-send-button" type="submit">Enviar</button>
-        </form>
-      </section>
+      <form id="chat-form" class="chat-form">
+        <input
+          id="chat-input"
+          class="chat-input"
+          type="text"
+          placeholder="Digite sua mensagem..."
+          autocomplete="off"
+          required
+        />
+        <button class="send-button" type="submit">Enviar</button>
+      </form>
     </main>
 
+    <!-- Cliente Socket.IO servido automaticamente pelo backend -->
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-      const messageList = document.getElementById('messageList');
-      const chatForm = document.getElementById('chatForm');
-      const messageInput = document.getElementById('messageInput');
+      // Conexão automática com o mesmo host/porta que serviu a página.
+      const socket = io();
 
-      function scrollToBottom() {
-        messageList.scrollTop = messageList.scrollHeight;
-      }
+      const messagesContainer = document.getElementById('messages');
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
 
-      function getTimeLabel() {
-        return new Date().toLocaleTimeString('pt-BR', {
+      /**
+       * Cria e adiciona uma mensagem na interface.
+       */
+      function renderMessage(messageData) {
+        const messageElement = document.createElement('article');
+        messageElement.className = 'message';
+
+        const timeLabel = new Date(messageData.sentAt).toLocaleTimeString('pt-BR', {
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         });
+
+        messageElement.innerHTML = `
+          <div class="meta">${messageData.senderId} • ${timeLabel}</div>
+          <div>${messageData.text}</div>
+        `;
+
+        messagesContainer.appendChild(messageElement);
+
+        // Mantém o scroll sempre no final após nova mensagem.
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
 
-      function appendMessage(content, type, author) {
-        const wrapper = document.createElement('article');
-        wrapper.className = `message ${type}`;
-
-        const authorElement = document.createElement('p');
-        authorElement.className = 'message-author';
-        authorElement.textContent = author;
-
-        const contentElement = document.createElement('p');
-        contentElement.className = 'message-content';
-        contentElement.textContent = content;
-
-        const timeElement = document.createElement('time');
-        timeElement.className = 'message-time';
-        timeElement.textContent = getTimeLabel();
-
-        wrapper.append(authorElement, contentElement, timeElement);
-        messageList.appendChild(wrapper);
-
-        scrollToBottom();
-      }
-
+      // Envia mensagem quando o formulário for submetido.
       chatForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const trimmedContent = messageInput.value.trim();
-        if (!trimmedContent) return;
+        const textMessage = chatInput.value.trim();
+        if (!textMessage) return;
 
-        appendMessage(trimmedContent, 'message-sent', 'Você');
-        messageInput.value = '';
-        messageInput.focus();
-
-        setTimeout(() => {
-          appendMessage('Mensagem recebida com sucesso!', 'message-received', 'Sistema');
-        }, 300);
+        socket.emit('chat:message', textMessage);
+        chatInput.value = '';
+        chatInput.focus();
       });
 
-      scrollToBottom();
+      // Escuta mensagens retransmitidas pelo servidor.
+      socket.on('chat:message', (messageData) => {
+        renderMessage(messageData);
+      });
     </script>
   </body>
 </html>
